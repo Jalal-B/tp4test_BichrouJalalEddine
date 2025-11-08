@@ -15,31 +15,27 @@
     </properties>
 
     <dependencies>
-        <!-- LangChain4j Core -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
             <version>1.7.1</version>
         </dependency>
-
-        <!-- Google AI Gemini -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-google-ai-gemini</artifactId>
             <version>1.7.1</version>
         </dependency>
-
-        <!-- Loader/Parser PDF via Tika (obligatoire pour FileSystemDocumentLoader sur PDF) -->
         <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-document-parser-apache-tika</artifactId>
-            <version>1.0.0-alpha1</version>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>2.9.2</version>
         </dependency>
-        <!-- Simple logger console (SLF4J STDOUT pour logs LangChain4j) -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
             <version>2.0.7</version>
         </dependency>
+
     </dependencies>
+
 </project>

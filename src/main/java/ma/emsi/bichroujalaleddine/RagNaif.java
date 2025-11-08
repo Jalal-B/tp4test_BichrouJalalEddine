@@ -1,6 +1,5 @@
 package ma.emsi.bichroujalaleddine;
 
-
 import dev.langchain4j.data.document.*;
 import dev.langchain4j.data.document.DocumentParser;
 import dev.langchain4j.data.document.DocumentSplitter;
@@ -31,67 +30,82 @@ import java.util.List;
 public class RagNaif {
 
     public static void main(String[] args) throws Exception {
-        String GEMINI_KEY = System.getenv("GEMINIKEY");
-        ChatLanguageModel chatModel = GoogleAiGeminiChatModel.builder()
-                .apiKey(GEMINI_KEY)
+        // ============ Création du ChatModel ============
+        String llmKey = System.getenv("GEMINIKEY");
+        ChatLanguageModel model = GoogleAiGeminiChatModel.builder()
+                .apiKey(llmKey)
                 .modelName("gemini-2.0-flash-exp")
-                .temperature(0.23)
+                .temperature(0.3)
                 .build();
+
+        // 1. Récupérer le Path du fichier PDF
+        URL fileUrl = RagNaif.class.getResource("/langchain4j.pdf");
+        Path path = Paths.get(fileUrl.toURI());
+
+        // 2. Créer le parser PDF
+        DocumentParser parser = new ApacheTikaDocumentParser();
+
+        // 3. Charger le document
+        Document document = FileSystemDocumentLoader.loadDocument(path, parser);
+
+        // 4. Découper le document en morceaux (chunks)
+        DocumentSplitter splitter = DocumentSplitters.recursive(600, 0);
+        List<TextSegment> segments = splitter.split(document);
+
+        // 5. Créer le modèle d'embeddings
         EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
 
-        Document docCours = chargerDocument("langchain4j.pdf");
-        List<TextSegment> decoupes = decouperDocument(docCours, 512);
-        List<Embedding> embList = genererEmbeddings(embeddingModel, decoupes);
+        // 6. Créer les embeddings pour tous les segments
+        Response<List<Embedding>> response = embeddingModel.embedAll(segments);
+        List<Embedding> embeddings = response.content();
 
-        EmbeddingStore<TextSegment> memStore = new InMemoryEmbeddingStore<>();
-        memStore.addAll(embList, decoupes);
+        // 7. Stocker dans un magasin d'embeddings
+        EmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
+        embeddingStore.addAll(embeddings, segments);
 
-        ContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
-                .embeddingStore(memStore)
+        System.out.println("Phase d'ingestion terminée !");
+        System.out.println("Nombre de segments créés : " + segments.size());
+
+        // 8. Créer le ContentRetriever
+        ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
+                .embeddingStore(embeddingStore)
                 .embeddingModel(embeddingModel)
                 .maxResults(2)
                 .minScore(0.5)
                 .build();
 
-        ChatMemory mem = MessageWindowChatMemory.withMaxMessages(10);
+        // 9. Créer une mémoire pour la conversation
+        ChatMemory chatMemory = MessageWindowChatMemory.withMaxMessages(10);
 
+        // 10. Créer l'assistant
         Assistant assistant = AiServices.builder(Assistant.class)
-                .chatLanguageModel(chatModel)
-                .chatMemory(mem)
-                .contentRetriever(retriever)
+                .chatLanguageModel(model)
+                .chatMemory(chatMemory)
+                .contentRetriever(contentRetriever)
                 .build();
 
-        System.out.println("Assistant prêt ! Pour quitter, tapez 'stop'.");
+        // 11. Poser des questions en boucle
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\nAssistant RAG prêt !");
+        System.out.println("Tapez 'fin' pour quitter.\n");
 
-        Scanner input = new Scanner(System.in);
         while (true) {
-            System.out.print("\nVotre question : ");
-            String q = input.nextLine();
-            if ("stop".equalsIgnoreCase(q.trim())) {
-                System.out.println("Session terminée !");
+            System.out.print("Question : ");
+            String question = scanner.nextLine();
+
+            if ("fin".equalsIgnoreCase(question.trim())) {
+                System.out.println("Au revoir !");
                 break;
             }
-            if (q.trim().isEmpty()) continue;
-            String result = assistant.chat(q);
-            System.out.println("Réponse :\n" + result);
+
+            if (question.trim().isEmpty()) {
+                continue;
+            }
+
+            String reponse = assistant.chat(question);
+            System.out.println("\nRéponse : " + reponse + "\n");
         }
-        input.close();
-    }
 
-    private static Document chargerDocument(String fileName) throws Exception {
-        URL fileURL = RagNaif.class.getResource("/" + fileName);
-        Path path = Paths.get(fileURL.toURI());
-        DocumentParser parser = new ApacheTikaDocumentParser();
-        return FileSystemDocumentLoader.loadDocument(path, parser);
-    }
-
-    private static List<TextSegment> decouperDocument(Document doc, int taille) {
-        DocumentSplitter splitter = DocumentSplitters.recursive(taille, 0);
-        return splitter.split(doc);
-    }
-
-    private static List<Embedding> genererEmbeddings(EmbeddingModel model, List<TextSegment> segments) {
-        Response<List<Embedding>> embResponse = model.embedAll(segments);
-        return embResponse.content();
+        scanner.close();
     }
 }

@@ -15,7 +15,6 @@ import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import dev.langchain4j.data.embedding.Embedding;
-
 import java.util.Scanner;
 import java.net.URL;
 import java.nio.file.Path;

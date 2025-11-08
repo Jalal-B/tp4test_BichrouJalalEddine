@@ -12,7 +12,6 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
-import dev.langchain4j.model.output.Response;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
@@ -25,7 +24,6 @@ import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import dev.langchain4j.web.search.WebSearchEngine;
 import dev.langchain4j.web.search.tavily.TavilyWebSearchEngine;
-
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,7 +51,7 @@ public class Test5_Web {
         // ---- PHASE 1 : INGESTION PDF ----
         EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
 
-        URL fileUrl = Test5_Web.class.getResource("/rag.pdf"); // Adapte le chemin si besoin !
+        URL fileUrl = Test5_Web.class.getResource("/langchain4j.pdf");
         Path path = Paths.get(fileUrl.toURI());
         Document doc = FileSystemDocumentLoader.loadDocument(path, new ApacheTikaDocumentParser());
         List<TextSegment> segments = DocumentSplitters.recursive(600, 0).split(doc);
@@ -117,7 +115,6 @@ public class Test5_Web {
         }
         scanner.close();
     }
-
     private static void configureLogger() {
         Logger logger = Logger.getLogger("dev.langchain4j");
         logger.setLevel(Level.FINE);

@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+    <modelVersion>4.0.0</modelVersion>
     <groupId>ma.emsi.bichroujalaleddine</groupId>
     <artifactId>tp4test_bichroujalaleddine</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>tp4test_bichroujalaleddine</name>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -15,29 +15,31 @@
     </properties>
 
     <dependencies>
+        <!-- LangChain4j Core -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
             <version>1.7.1</version>
         </dependency>
+
+        <!-- Google AI Gemini -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-google-ai-gemini</artifactId>
             <version>1.7.1</version>
         </dependency>
-        <!-- Pour PDF/TXT/Parsing -->
+
+        <!-- Loader/Parser PDF via Tika (obligatoire pour FileSystemDocumentLoader sur PDF) -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-document-loader-apache-tika</artifactId>
-            <version>1.7.1</version>
+            <artifactId>langchain4j-document-parser-apache-tika</artifactId>
+            <version>1.0.0-alpha1</version>
         </dependency>
-        <!-- SLF4J simple logger pour la gestion propre en STDOUT -->
+        <!-- Simple logger console (SLF4J STDOUT pour logs LangChain4j) -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jdk14</artifactId>
             <version>2.0.7</version>
         </dependency>
     </dependencies>
-
-
 </project>

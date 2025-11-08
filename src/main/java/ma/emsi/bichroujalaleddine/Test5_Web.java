@@ -40,8 +40,8 @@ public class Test5_Web {
     public static void main(String[] args) throws Exception {
         configureLogger();
 
-        String llmKey = System.getenv("GEMINI_API_KEY");
-        String tavilyKey = System.getenv("TAVILY_KEY");
+        String llmKey = System.getenv("GEMINIKEY");
+        String tavilyKey = System.getenv("TAVILYKEY");
 
         ChatLanguageModel model = GoogleAiGeminiChatModel.builder()
                 .apiKey(llmKey)
